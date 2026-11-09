@@ -1,0 +1,45 @@
+name: Build libbox.aar
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27
+          add-to-path: true
+
+      - name: Install gomobile
+        run: |
+          go install golang.org/x/mobile/cmd/gomobile@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+          gomobile init
+
+      - name: Build libbox.aar
+        run: |
+          gomobile bind -v \
+            -androidapi=21 \
+            -javapkg=io.nekohasekai \
+            -tags="with_gvisor,with_quic,with_wireguard,with_utls,with_clash_api" \
+            -trimpath \
+            -target=android/arm64,android/arm \
+            -o libbox.aar \
+            github.com/sagernet/sing-box/experimental/libbox
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: libbox-aar
+          path: libbox.aar
