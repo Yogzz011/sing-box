@@ -13,7 +13,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          go-version: '1.23' # Atau gunakan '1.25' untuk versi terbaru
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -21,15 +21,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android NDK
-        uses: nttld/setup-ndk@v1
+      - name: Setup Android SDK & NDK
+        uses: android-actions/setup-android@v3
         with:
-          ndk-version: r25c
-          add-to-path: true
-          link-to-sdk: true
-
+          ndk-version: '26.2.11394342' # NDK yang direkomendasikan, jangan gunakan r25c
+          
       - name: Build libbox.aar
-        run: go run ./cmd/internal/build_libbox -target android
+        run: |
+          # Pastikan environment variable ter-set
+          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/26.2.11394342
+          # Jalankan build dengan parameter yang lengkap
+          go run ./cmd/internal/build_libbox -target android -platform android
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
