@@ -15,10 +15,16 @@ jobs:
         with:
           go-version: '1.23'
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         with:
-          ndk-version: r25c
+          ndk-version: r28
           add-to-path: true
           link-to-sdk: true
 
