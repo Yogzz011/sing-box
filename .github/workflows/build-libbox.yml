@@ -2,18 +2,26 @@ name: Build libbox.aar
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - testing
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          # WAJIB: Mengambil seluruh riwayat git & tag agar 'read_tag' bisa menghitung versi
+          fetch-depth: 0 
 
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23' # Atau gunakan '1.25' untuk versi terbaru
+          go-version: '1.23'
+          cache: true
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -21,20 +29,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK & NDK
-        uses: android-actions/setup-android@v3
+      - name: Setup Android NDK
+        uses: nttld/setup-ndk@v1
         with:
-          ndk-version: '26.2.11394342' # NDK yang direkomendasikan, jangan gunakan r25c
-          
+          # Gunakan NDK versi 26 atau 27 (r25c terlalu lama untuk sing-box terbaru)
+          ndk-version: r26d
+          add-to-path: true
+          link-to-sdk: true
+
       - name: Build libbox.aar
         run: |
-          # Pastikan environment variable ter-set
-          export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/26.2.11394342
-          # Jalankan build dengan parameter yang lengkap
-          go run ./cmd/internal/build_libbox -target android -platform android
+          go run ./cmd/internal/build_libbox -target android
 
-      - name: Upload artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: libbox-aar
           path: libbox.aar
+          if-no-files-found: error
