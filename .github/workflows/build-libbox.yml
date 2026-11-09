@@ -24,11 +24,11 @@ jobs:
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         with:
-          ndk-version: r28
+          ndk-version: r25c
           add-to-path: true
           link-to-sdk: true
 
-      - name: Build libbox.aar with official tool
+      - name: Build libbox.aar
         run: go run ./cmd/internal/build_libbox -target android
 
       - name: Upload artifact
