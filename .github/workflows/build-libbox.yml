@@ -18,26 +18,12 @@ jobs:
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
         with:
-          ndk-version: r27
+          ndk-version: r25c
           add-to-path: true
           link-to-sdk: true
 
-      - name: Install gomobile
-        run: |
-          go install golang.org/x/mobile/cmd/gomobile@latest
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-          gomobile init
-
-      - name: Build libbox.aar
-        run: |
-          gomobile bind -v \
-            -androidapi=21 \
-            -javapkg=io.nekohasekai \
-            -tags="with_gvisor,with_quic,with_wireguard,with_utls,with_clash_api" \
-            -trimpath \
-            -target=android/arm64,android/arm \
-            -o libbox.aar \
-            github.com/sagernet/sing-box/experimental/libbox
+      - name: Build libbox.aar with official tool
+        run: go run ./cmd/internal/build_libbox -target android
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
